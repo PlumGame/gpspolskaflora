@@ -11,7 +11,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
 
-// helper: initial view
 function MapInit({ center, zoom, bounds }) {
   const map = useMap();
   useEffect(() => {
@@ -29,41 +28,24 @@ function MapInit({ center, zoom, bounds }) {
   return null;
 }
 
-// small blue dot icon for user location
 function createUserIcon(size = 22) {
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-      <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 1}" fill="#1e90ff" stroke="#ffffff" stroke-width="2"/>
-      <circle cx="${size/2}" cy="${size/2}" r="${Math.max(2, Math.floor(size*0.22))}" fill="#e6f4ff"/>
-    </svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${size/2}" cy="${size/2}" r="${size/2 - 1}" fill="#1e90ff" stroke="#ffffff" stroke-width="2"/><circle cx="${size/2}" cy="${size/2}" r="${Math.max(2, Math.floor(size*0.22))}" fill="#e6f4ff"/></svg>`;
   return L.icon({
     iconUrl: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg),
     iconSize: [size, size],
-    iconAnchor: [size/2, size/2],
+    iconAnchor: [size / 2, size / 2],
     className: "user-location-icon",
   });
 }
 
 const userIcon = createUserIcon(26);
 
-// minimal SVG marker generator and icon factory (kept compact)
 function makeSvgDataUrl({ color = "#0b78d1", size = 44, rotate = 0, label = "" }) {
   const s = size;
   const r = Math.round(s * 0.18);
   const circleR = Math.round(s * 0.33);
   const strokeW = Math.max(1, Math.round(s * 0.03));
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
-      <g transform="translate(${s/2},${s/2}) rotate(${rotate}) translate(${-s/2},${-s/2})">
-        <path d="M ${s/2} ${s*0.08} A ${circleR} ${circleR} 0 1 1 ${s/2 - 0.001} ${s*0.08} Z"
-          fill="${color}" stroke="#ffffff" stroke-width="${strokeW}" />
-        <circle cx="${s/2}" cy="${s*0.36}" r="${r}" fill="#ffffff"/>
-        <circle cx="${s/2}" cy="${s*0.36}" r="${Math.max(1, r*0.6)}" fill="${color}"/>
-        <polygon points="${s/2 - 6},${s*0.80} ${s/2 + 6},${s*0.80} ${s/2},${s*0.96}" fill="${color}" />
-        ${label ? `<text x="${s/2}" y="${s*0.43}" font-size="${Math.max(8, s*0.12)}" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="700">${label}</text>` : ""}
-      </g>
-    </svg>
-  `;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}"><g transform="translate(${s/2},${s/2}) rotate(${rotate}) translate(${-s/2},${-s/2})"><path d="M ${s/2} ${s*0.08} A ${circleR} ${circleR} 0 1 1 ${s/2 - 0.001} ${s*0.08} Z" fill="${color}" stroke="#ffffff" stroke-width="${strokeW}" /><circle cx="${s/2}" cy="${s*0.36}" r="${r}" fill="#ffffff"/><circle cx="${s/2}" cy="${s*0.36}" r="${Math.max(1, r*0.6)}" fill="${color}"/><polygon points="${s/2 - 6},${s*0.80} ${s/2 + 6},${s*0.80} ${s/2},${s*0.96}" fill="${color}" />${label ? `<text x="${s/2}" y="${s*0.43}" font-size="${Math.max(8, s*0.12)}" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="700">${label}</text>` : ""}</g></svg>`;
   return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 }
 
@@ -88,7 +70,6 @@ function createIconFromSpec(spec) {
   });
 }
 
-// Reverse geocode (kept for popup address if used)
 async function reverseGeocode(lat, lon) {
   const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&addressdetails=1&extratags=1&namedetails=1`;
   const referer = typeof window !== "undefined" && window.location ? window.location.origin : "";
@@ -133,7 +114,7 @@ const MapView = ({
   const geowatchIdRef = useRef(null);
 
   const [userPos, setUserPos] = useState(null);
-  const [userError, setUserError] = useState(null);
+  const [, setUserError] = useState(null);
 
   const handleWhenCreated = (mapInstance) => {
     mapInstanceRef.current = mapInstance;
@@ -196,7 +177,6 @@ const MapView = ({
     entry.anim = anim;
   };
 
-  // update vehicle markers positions
   useEffect(() => {
     const incoming = {};
     vehicles.forEach((v) => {
@@ -241,7 +221,6 @@ const MapView = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vehicles]);
 
-  // address fetch with caching (kept minimal)
   const fetchAddressFor = async (id, lat, lng) => {
     const cache = addressesRef.current[id];
     const now = Date.now();
@@ -258,7 +237,6 @@ const MapView = ({
     tick((n) => n + 1);
   };
 
-  // Geolocation handling
   useEffect(() => {
     if (!showUserLocation) return;
     if (!("geolocation" in navigator)) {
@@ -318,14 +296,11 @@ const MapView = ({
     };
   }, [showUserLocation, watchUser, centerOnUser]);
 
-  // Open route: tries to use current userPos, otherwise requests a single geolocation fix
   const openRouteTo = (destLat, destLng, travelMode = "driving") => {
     const openWithOrigin = (originLat, originLng) => {
-      // Google Maps Directions URL
       const base = "https://www.google.com/maps/dir/?api=1";
       const params = `&origin=${encodeURIComponent(originLat + "," + originLng)}&destination=${encodeURIComponent(destLat + "," + destLng)}&travelmode=${encodeURIComponent(travelMode)}`;
-      const url = base + params;
-      window.open(url, "_blank");
+      window.open(base + params, "_blank");
     };
 
     if (userPos && Number.isFinite(userPos.lat) && Number.isFinite(userPos.lng)) {
@@ -338,7 +313,6 @@ const MapView = ({
       return;
     }
 
-    // try to get one-time position then open route
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const c = pos.coords;
@@ -366,7 +340,6 @@ const MapView = ({
     );
   };
 
-  // highlight handling: open popup on marker if highlighted (kept minimal)
   useEffect(() => {
     if (!highlightId) return;
     let entry = markerRefs.current[highlightId];
@@ -390,7 +363,6 @@ const MapView = ({
         mapInstanceRef.current.flyTo([foundVehicle.lat, foundVehicle.lng], Math.max(mapInstanceRef.current.getZoom(), 13), { duration: 0.8 });
       } catch {}
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [highlightId, vehicles]);
 
   return (
@@ -398,7 +370,6 @@ const MapView = ({
       <MapInit center={center} zoom={zoom} bounds={initialBounds} />
       <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> участники' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-      {/* vehicle markers */}
       {vehicles.map((v) => {
         if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng) || v.id == null) return null;
         const icon = getIconForVehicle(v);
@@ -457,7 +428,6 @@ const MapView = ({
         );
       })}
 
-      {/* user location */}
       {showUserLocation && userPos && (
         <>
           <Marker position={[userPos.lat, userPos.lng]} icon={userIcon}>
