@@ -1,0 +1,157 @@
+/* responsive layout and floating UI for map app */
+
+/* base */
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; padding: 0; }
+body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+
+/* App root container (если нужно) */
+.app-root {
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  overflow: hidden;
+  background: #0b1220; /* fallback under map */
+}
+
+/* Map fills parent */
+.map-fill {
+  height: 100%;
+  width: 100%;
+}
+
+/* Floating add button */
+.add-tracker-button {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  z-index: 4200;
+  background: rgba(11,120,209,0.96);
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(2,6,23,0.18);
+  transition: transform 120ms ease;
+}
+.add-tracker-button:active { transform: translateY(1px); }
+
+/* FloatingMenu compact container */
+.floating-menu {
+  position: absolute;
+  right: 18px;
+  top: 72px;
+  z-index: 4200;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  padding: 8px;
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+  background: rgba(8,12,20,0.18);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+/* icon buttons inside menu */
+.fm-icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.04);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+}
+.fm-icon-btn:hover { transform: translateY(-3px); }
+
+/* mini legend dots (stacked) */
+.fm-legend-mini { display: flex; flex-direction: column; gap: 8px; align-items: center; padding: 4px 0; }
+.fm-dot-mini { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.35); }
+
+/* Overlay backdrop and card */
+.tracker-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.24);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 6000;
+}
+.tracker-overlay-card {
+  width: 100%;
+  max-width: 560px;
+  border-radius: 12px;
+  background: rgba(10,12,16,0.86);
+  padding: 16px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  color: #fff;
+  position: relative;
+}
+.tracker-overlay-close {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Loading / error badges (absolute) */
+.badge {
+  position: absolute;
+  left: 18px;
+  top: 18px;
+  z-index: 4300;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  font-size: 14px;
+}
+
+/* Responsive: small screens */
+@media (max-width: 720px) {
+  .floating-menu {
+    right: 12px;
+    top: 64px;
+    gap: 8px;
+    padding: 6px;
+  }
+  .fm-icon-btn { width: 40px; height: 40px; border-radius: 10px; font-size: 16px; }
+  .add-tracker-button {
+    right: 12px;
+    top: 12px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+  .tracker-overlay-card {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    border-radius: 0;
+    padding: 12px;
+    justify-content: start;
+  }
+  .tracker-overlay-backdrop { align-items: flex-end; padding: 0; background: rgba(0,0,0,0.28); }
+}
+
+/* Very small screens: hide legend dots, keep one big button */
+@media (max-width: 420px) {
+  .fm-legend-mini { display: none; }
+  .floating-menu { right: 10px; top: 64px; }
+  .fm-icon-btn { width: 46px; height: 46px; font-size: 18px; }
+}
